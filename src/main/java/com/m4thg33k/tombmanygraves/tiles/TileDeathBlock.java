@@ -3,11 +3,14 @@ package com.m4thg33k.tombmanygraves.tiles;
 import baubles.common.container.InventoryBaubles;
 import baubles.common.lib.PlayerHandler;
 import com.m4thg33k.tombmanygraves.TombManyGraves;
+import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
+import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryHelper;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
@@ -20,8 +23,15 @@ public class TileDeathBlock extends TileEntity {
     private String playerName = "";
     private InventoryPlayer savedPlayerInventory = new InventoryPlayer(null);
     private NBTTagCompound baublesNBT = new NBTTagCompound();
+    private ItemStack groundMaterial = null;
+    private boolean locked = false;
 
     private int angle = 0;
+
+    public TileDeathBlock()
+    {
+        locked = TombManyGravesConfigs.DEFAULT_TO_LOCKED;
+    }
 
     public void setPlayerName(String name)
     {
@@ -63,7 +73,7 @@ public class TileDeathBlock extends TileEntity {
 
     public boolean isSamePlayer(EntityPlayer player)
     {
-        return player.getName().equals(playerName);
+        return TombManyGravesConfigs.ALLOW_GRAVE_ROBBING || player.getName().equals(playerName);
     }
 
     public String getPlayerName()
@@ -79,6 +89,9 @@ public class TileDeathBlock extends TileEntity {
         savedPlayerInventory.readFromNBT(compound.getTagList("Inventory",10));
         baublesNBT = compound.getCompoundTag("BaublesNBT");
         angle = compound.getInteger("AngleOfDeath");
+
+        groundMaterial = ItemStack.loadItemStackFromNBT(compound.getCompoundTag("Material"));
+        locked = compound.getBoolean("IsLocked");
     }
 
     @Override
@@ -93,11 +106,20 @@ public class TileDeathBlock extends TileEntity {
 
         compound.setTag("BaublesNBT",baublesNBT);
         compound.setInteger("AngleOfDeath",angle);
+
+
+        NBTTagCompound material = new NBTTagCompound();
+        if (groundMaterial != null)
+        {
+            groundMaterial.writeToNBT(material);
+        }
+        compound.setTag("Material",material);
+        compound.setBoolean("IsLocked", locked);
     }
 
     public void onCollision(EntityPlayer player)
     {
-        if (worldObj.isRemote || !isSamePlayer(player))
+        if (worldObj.isRemote || locked || !isSamePlayer(player))
         {
             return;
         }
@@ -135,21 +157,6 @@ public class TileDeathBlock extends TileEntity {
     {
         replaceSpecificInventory(player,player.inventory,savedPlayerInventory);
         savedPlayerInventory = new InventoryPlayer(null);
-//        for (int i=0; i < savedPlayerInventory.getSizeInventory(); i++)
-//        {
-//            if(savedPlayerInventory.getStackInSlot(i) != null && savedPlayerInventory.getStackInSlot(i).stackSize > 0)
-//            {
-//                if (player.inventory.getStackInSlot(i) == null)
-//                {
-//                    player.inventory.setInventorySlotContents(i, savedPlayerInventory.getStackInSlot(i));
-//                }
-//                else
-//                {
-//                    EntityItem entityItem = new EntityItem(worldObj, player.posX, player.posY, player.posZ, savedPlayerInventory.getStackInSlot(i));
-//                    worldObj.spawnEntityInWorld(entityItem);
-//                }
-//            }
-//        }
     }
 
     public void replaceBaublesInventory(EntityPlayer player)
@@ -168,6 +175,8 @@ public class TileDeathBlock extends TileEntity {
     public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
         playerName = pkt.getNbtCompound().getString("PlayerName");
         angle = pkt.getNbtCompound().getInteger("AngleOfDeath");
+        groundMaterial = ItemStack.loadItemStackFromNBT(pkt.getNbtCompound().getCompoundTag("Material"));
+        locked = pkt.getNbtCompound().getBoolean("IsLocked");
     }
 
     @Override
@@ -175,6 +184,14 @@ public class TileDeathBlock extends TileEntity {
         NBTTagCompound compound = new NBTTagCompound();
         compound.setString("PlayerName",playerName);
         compound.setInteger("AngleOfDeath",angle);
+
+        NBTTagCompound material = new NBTTagCompound();
+        if (groundMaterial != null)
+        {
+            groundMaterial.writeToNBT(material);
+        }
+        compound.setTag("Material",material);
+        compound.setBoolean("IsLocked",locked);
         return new SPacketUpdateTileEntity(pos,0,compound);
     }
 
@@ -217,5 +234,42 @@ public class TileDeathBlock extends TileEntity {
         }
 
         return true;
+    }
+
+    public void setGroundMaterial(ItemStack material)
+    {
+        groundMaterial = material.copy();
+    }
+
+    public ItemStack getGroundMaterial()
+    {
+        return groundMaterial;
+    }
+
+    public boolean isLocked()
+    {
+        return locked;
+    }
+
+    public void toggleLock(EntityPlayer player)
+    {
+        if (worldObj.isRemote)
+        {
+            return;
+        }
+        if (isSamePlayer(player)) {
+            locked = !locked;
+            if (TombManyGravesConfigs.ALLOW_LOCKING_MESSAGES)
+            {
+                ChatHelper.sayMessage(player.worldObj, player, "This grave is now " + (locked ? "locked!" : "unlocked!"));
+            }
+
+            markDirty();
+            worldObj.markAndNotifyBlock(pos, null, worldObj.getBlockState(pos), worldObj.getBlockState(pos), 2);
+        }
+        else
+        {
+            ChatHelper.sayMessage(player.worldObj, player, "You do not have permission to modify this grave.");
+        }
     }
 }

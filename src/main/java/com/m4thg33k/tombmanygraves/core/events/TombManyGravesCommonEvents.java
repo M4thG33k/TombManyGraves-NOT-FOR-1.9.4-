@@ -10,6 +10,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -46,13 +47,24 @@ public class TombManyGravesCommonEvents {
                     if (tileEntity != null && tileEntity instanceof TileDeathBlock)
                     {
                         ((TileDeathBlock)tileEntity).grabPlayer(player);
+
                         IBlockState state1 = getBlockBelow(player.worldObj,posToPlace);
                         Block block = state1.getBlock();
-                        if (block.getMaterial(state1) == Material.ground || block.getMaterial(state1) == Material.rock || block.getMaterial(state1) == Material.wood)
+
+                        if (block.getMaterial(state1) == Material.ground || block.getMaterial(state1) == Material.rock || block.getMaterial(state1) == Material.wood || block.getMaterial(state1) == Material.sand || block.getMaterial(state1) == Material.grass || block.getMaterial(state1) == Material.air)
                         {
-                            LogHelper.info("I can do something with this...");
+                            if (block.getMaterial(state1) == Material.grass)
+                            {
+                                block = Blocks.dirt;
+                                state1 = block.getDefaultState();
+                            }
+                            else if (block.getMaterial(state1) == Material.air)
+                            {
+                                block = ModBlocks.blockDeath;
+                                state1 = block.getDefaultState();
+                            }
+                            ((TileDeathBlock)tileEntity).setGroundMaterial(new ItemStack(block,1,block.getMetaFromState(state1)));
                         }
-                        LogHelper.info(getBlockBelow(player.worldObj,posToPlace).toString());
                     }
                     else
                     {
@@ -63,6 +75,11 @@ public class TombManyGravesCommonEvents {
                 {
                     ChatHelper.sayMessage(player.worldObj,player,"Could not find suitable grave location.");
                 }
+            }
+            else
+            {
+                ChatHelper.sayMessage(player.worldObj, player, "Place of death (x,y,z) = (" + (int)player.posX + "," + (int)player.posY + "," + (int)player.posZ + ")");
+                ChatHelper.sayMessage(player.worldObj, player, "(But your inventory was empty)");
             }
         }
     }

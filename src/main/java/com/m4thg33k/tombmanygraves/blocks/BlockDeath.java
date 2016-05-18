@@ -2,8 +2,8 @@ package com.m4thg33k.tombmanygraves.blocks;
 
 import com.m4thg33k.tombmanygraves.TombManyGraves;
 import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
-import com.m4thg33k.tombmanygraves.core.util.LogHelper;
 import com.m4thg33k.tombmanygraves.lib.Names;
+import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
 import com.m4thg33k.tombmanygraves.tiles.TileDeathBlock;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -48,9 +48,22 @@ public class BlockDeath extends BaseBlock {
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
         if (!worldIn.isRemote)
         {
-            ChatHelper.sayMessage(worldIn,playerIn,"This grave belongs to: " + ((TileDeathBlock)worldIn.getTileEntity(pos)).getPlayerName());
+            TileDeathBlock tileDeathBlock = (TileDeathBlock)worldIn.getTileEntity(pos);
+            if (playerIn.isSneaking())
+            {
+                tileDeathBlock.toggleLock(playerIn);
+            }
+            else
+            {
+                ChatHelper.sayMessage(worldIn,playerIn,"This grave belongs to: " + tileDeathBlock.getPlayerName());
+                if (tileDeathBlock.isSamePlayer(playerIn))
+                {
+                    ChatHelper.sayMessage(worldIn,playerIn,"Shift-click to lock/unlock the grave!");
+                }
+            }
         }
 
+//        LogHelper.info(("Attempting name getting:" + ((TileDeathBlock)worldIn.getTileEntity(pos)).getPlayerName() + ", " + ((TileDeathBlock)worldIn.getTileEntity(pos)).getGroundMaterial().getItem().getUnlocalizedName()));
         return true;
     }
 
@@ -62,15 +75,6 @@ public class BlockDeath extends BaseBlock {
 
     @Override
     public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, Entity entityIn) {
-        if (worldIn.isRemote)
-        {
-            return;
-        }
-
-//        super.addCollisionBoxToList(state, worldIn, pos, entityBox, collidingBoxes, entityIn);
-
-//        LogHelper.info("Block:: Collision with: " + entityIn.getName());
-
         TileDeathBlock tileDeathBlock = (TileDeathBlock)worldIn.getTileEntity(pos);
         if (entityIn instanceof EntityPlayer && tileDeathBlock.isSamePlayer((EntityPlayer)entityIn))
         {
@@ -89,17 +93,20 @@ public class BlockDeath extends BaseBlock {
     }
 
     @Override
-    public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, Entity entityIn) {
-//        if (worldIn.isRemote)
-//        {
-//            return;
-//        }
-
-        LogHelper.info("Block:: Colliding with: " + entityIn.getName());
+    public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
         TileDeathBlock tileDeathBlock = (TileDeathBlock)worldIn.getTileEntity(pos);
-        if (entityIn != null && entityIn instanceof EntityPlayer && entityIn.isEntityAlive())
+        if (entityIn instanceof EntityPlayer && entityIn.isEntityAlive())
         {
-            tileDeathBlock.onCollision((EntityPlayer)entityIn);
+            if (TombManyGravesConfigs.REQUIRE_SNEAKING)
+            {
+                if (entityIn.isSneaking())
+                {
+                    tileDeathBlock.onCollision((EntityPlayer)entityIn);
+                }
+            }
+            else {
+                tileDeathBlock.onCollision((EntityPlayer) entityIn);
+            }
         }
     }
 
@@ -125,7 +132,7 @@ public class BlockDeath extends BaseBlock {
 
     @Override
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
-        return new AxisAlignedBB(0.2f,0.2f,0.2f,0.8f,0.8f,0.8f);
+        return new AxisAlignedBB(0.25f,0.25f,0.25f,0.75f,0.75f,0.75f);
     }
 
     @Override
