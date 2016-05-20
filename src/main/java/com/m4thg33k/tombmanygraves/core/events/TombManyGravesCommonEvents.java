@@ -4,6 +4,7 @@ import com.m4thg33k.tombmanygraves.blocks.ModBlocks;
 import com.m4thg33k.tombmanygraves.core.handlers.DeathInventoryHandler;
 import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
 import com.m4thg33k.tombmanygraves.core.util.LogHelper;
+import com.m4thg33k.tombmanygraves.items.ModItems;
 import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
 import com.m4thg33k.tombmanygraves.tiles.TileDeathBlock;
 import net.minecraft.block.Block;
@@ -11,13 +12,14 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.player.PlayerSetSpawnEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
@@ -34,7 +36,7 @@ public class TombManyGravesCommonEvents {
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void savePlayerInventoryOnDeath(LivingDeathEvent event)
     {
-        if (!event.getEntityLiving().worldObj.getGameRules().getBoolean("keepInventory") && event.getEntityLiving() instanceof EntityPlayer && !((EntityPlayer)event.getEntityLiving()).worldObj.isRemote)
+        if (!event.getEntityLiving().worldObj.getGameRules().getBoolean("keepInventory") && event.getEntityLiving() instanceof EntityPlayer && !((EntityPlayer)event.getEntityLiving()).worldObj.isRemote && !TileDeathBlock.isInventoryEmpty((EntityPlayer)event.getEntityLiving()))
         {
             DeathInventoryHandler.createDeathInventory((EntityPlayer)event.getEntityLiving());
         }
@@ -170,5 +172,24 @@ public class TombManyGravesCommonEvents {
     private IBlockState getBlockBelow(World world, BlockPos pos)
     {
         return world.getBlockState(pos.add(0,-1,0));
+    }
+
+    @SubscribeEvent
+    public void itemToss(ItemTossEvent event)
+    {
+        Item item = event.getEntityItem().getEntityItem().getItem();
+        if (item == Item.getItemFromBlock(ModBlocks.blockDeath) || item == ModItems.itemDeathList)
+        {
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public void onPlayerRespawn(net.minecraftforge.event.entity.player.PlayerEvent.Clone event)
+    {
+        if (!event.getEntityLiving().worldObj.getGameRules().getBoolean("keepInventory") && TombManyGravesConfigs.ALLOW_INVENTORY_SAVES && !(event.getEntityPlayer().worldObj.isRemote) && event.isWasDeath())
+        {
+            DeathInventoryHandler.getDeathList(event.getEntityPlayer(), event.getEntityPlayer().getName(), "latest");
+        }
     }
 }

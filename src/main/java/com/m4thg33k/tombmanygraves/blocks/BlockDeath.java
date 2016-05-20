@@ -2,6 +2,7 @@ package com.m4thg33k.tombmanygraves.blocks;
 
 import com.m4thg33k.tombmanygraves.TombManyGraves;
 import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
+import com.m4thg33k.tombmanygraves.gui.TombManyGravesGuiHandler;
 import com.m4thg33k.tombmanygraves.lib.Names;
 import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
 import com.m4thg33k.tombmanygraves.tiles.TileDeathBlock;
@@ -46,6 +47,12 @@ public class BlockDeath extends BaseBlock {
 
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+        if (playerIn.getName().equals("M4thG33k"))
+        {
+            playerIn.openGui(TombManyGraves.INSTANCE, TombManyGravesGuiHandler.DEATH_ITEMS_GUI, playerIn.worldObj, (int)playerIn.posX, (int)playerIn.posY, (int)playerIn.posZ);
+            return true;
+        }
+
         if (!worldIn.isRemote)
         {
             TileDeathBlock tileDeathBlock = (TileDeathBlock)worldIn.getTileEntity(pos);

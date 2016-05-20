@@ -12,5 +12,6 @@ public class ModCommands {
         event.registerServerCommand(new CommandClearFriendList());
         event.registerServerCommand(new CommandRestoreInventory());
         event.registerServerCommand(new CommandDropInventory());
+        event.registerServerCommand(new CommandGetDeathList());
     }
 }

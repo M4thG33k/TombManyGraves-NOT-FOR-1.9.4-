@@ -3,6 +3,8 @@ package com.m4thg33k.tombmanygraves.client.render.tiles;
 import com.m4thg33k.tombmanygraves.blocks.ModBlocks;
 import com.m4thg33k.tombmanygraves.tiles.TileDeathBlock;
 import com.mojang.authlib.exceptions.AuthenticationException;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.BlockStateBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
@@ -18,6 +20,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 
 import java.util.Random;
 
@@ -122,5 +125,10 @@ public class TileDeathBlockRenderer extends TileEntitySpecialRenderer{
         }
         GlStateManager.popMatrix();
 
+    }
+
+    public void renderGround(int deathAngle, ItemStack groundType)
+    {
+        BlockStateBase blockStateBase;
     }
 }

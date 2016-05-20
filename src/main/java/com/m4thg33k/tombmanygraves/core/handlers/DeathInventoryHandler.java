@@ -74,4 +74,10 @@ public class DeathInventoryHandler {
 
         return Arrays.asList(fileNames);
     }
+
+    public static boolean getDeathList(EntityPlayer player, String playerName, String timestamp)
+    {
+        DeathInventory deathInventory = new DeathInventory(player);
+        return deathInventory.getDeathList(player, playerName, timestamp);
+    }
 }

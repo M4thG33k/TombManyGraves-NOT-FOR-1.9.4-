@@ -1,6 +1,7 @@
 package com.m4thg33k.tombmanygraves.core.commands;
 
 import com.m4thg33k.tombmanygraves.core.handlers.DeathInventoryHandler;
+import com.m4thg33k.tombmanygraves.core.handlers.FriendHandler;
 import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -12,17 +13,18 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-public class CommandRestoreInventory implements ICommand {
-    public final String COMMAND_NAME = "tmg_restore";
+public class CommandGetDeathList implements ICommand {
+
+    public final String COMMAND_NAME = "tmg_getdeathlist";
 
     private final List<String> aliases;
 
-    public CommandRestoreInventory()
+    public CommandGetDeathList()
     {
         aliases = new ArrayList<String>();
+        aliases.add("tmg_deathlist");
     }
 
     @Override
@@ -32,7 +34,7 @@ public class CommandRestoreInventory implements ICommand {
 
     @Override
     public String getCommandUsage(ICommandSender sender) {
-        return COMMAND_NAME + " [player] <text|timestamp>";
+        return COMMAND_NAME + " [player] <timestamp>";
     }
 
     @Override
@@ -59,26 +61,23 @@ public class CommandRestoreInventory implements ICommand {
             return;
         }
 
-        EntityPlayer player = server.getPlayerList().getPlayerByUsername(args[0]);
-        if (player!=null)
+        boolean worked = DeathInventoryHandler.getDeathList((EntityPlayer)sender,args[0],args[1]);
+        if (!worked)
         {
-            boolean worked = DeathInventoryHandler.restorePlayerInventory(player,args[1]);
-            if (!worked)
-            {
-                sender.addChatMessage(new TextComponentString("Failed to restore inventory."));
-                sender.addChatMessage(new TextComponentString("Check spelling and timestamp."));
-            }
+            sender.addChatMessage(new TextComponentString("Failed to restore inventory."));
+            sender.addChatMessage(new TextComponentString("Check spelling and timestamp."));
         }
+
     }
 
     @Override
     public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-        return sender.canCommandSenderUseCommand(this.getRequiredPermissionLevel(), this.getCommandName());
+        return true;
     }
 
     @Override
     public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
-        return args.length == 1 ? CommandBase.getListOfStringsMatchingLastWord(args, server.getAllUsernames()) : (args.length == 2 ? CommandBase.getListOfStringsMatchingLastWord(args,DeathInventoryHandler.getFilenames(args[0])) : null);
+        return args.length == 1 ? CommandBase.getListOfStringsMatchingLastWord(args, server.getAllUsernames()) : (args.length == 2 ? CommandBase.getListOfStringsMatchingLastWord(args, DeathInventoryHandler.getFilenames(args[0])) : null);
     }
 
     @Override
@@ -89,10 +88,5 @@ public class CommandRestoreInventory implements ICommand {
     @Override
     public int compareTo(ICommand o) {
         return 0;
-    }
-
-    public int getRequiredPermissionLevel()
-    {
-        return 4;
     }
 }
