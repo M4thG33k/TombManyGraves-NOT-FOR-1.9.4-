@@ -167,7 +167,6 @@ public class TombManyGravesCommonEvents {
 
     private IBlockState getBlockBelow(World world, BlockPos pos)
     {
-        IBlockState toReturn = world.getBlockState(pos.add(0,-1,0));
-        return toReturn;
+        return world.getBlockState(pos.add(0,-1,0));
     }
 }

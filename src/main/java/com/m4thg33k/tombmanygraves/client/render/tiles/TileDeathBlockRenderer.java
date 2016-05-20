@@ -23,9 +23,6 @@ import java.util.Random;
 
 public class TileDeathBlockRenderer extends TileEntitySpecialRenderer{
 
-    private String playerName = null;
-    private int deathAngle = -1;
-
     public TileDeathBlockRenderer()
     {
     }
@@ -35,8 +32,8 @@ public class TileDeathBlockRenderer extends TileEntitySpecialRenderer{
 
 
         TileDeathBlock tileDeathBlock = (TileDeathBlock)te;
-        this.deathAngle = tileDeathBlock.getAngle();
-        this.playerName = tileDeathBlock.getPlayerName();
+        int deathAngle = tileDeathBlock.getAngle();
+        String playerName = tileDeathBlock.getPlayerName();
 
         boolean isLocked = tileDeathBlock.isLocked();
         boolean renderGround = true;

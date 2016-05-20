@@ -24,7 +24,6 @@ public class FriendHandler {
     private static ArrayList<Friends> friendList;
     private static String FILE_PREFIX = "/TooManyGravesData/friendList";
     private static String FILENAME = "/friends.json";
-    private static String FILENAME_ERROR = "/friends_ERROR";
 
     public static void importFriendLists()
     {
@@ -90,8 +89,9 @@ public class FriendHandler {
 
     public static void renameFile()
     {
+        String filename_error = "/friends_ERROR";
         File oldName = new File(TombManyGraves.file + FILE_PREFIX + FILENAME);
-        File newName = new File(TombManyGraves.file + FILE_PREFIX + FILENAME_ERROR);
+        File newName = new File(TombManyGraves.file + FILE_PREFIX + filename_error);
 
         boolean success = oldName.renameTo(newName);
         if (!success)
