@@ -54,4 +54,5 @@ public class Friends {
     {
         return myFriends.contains(friendID);
     }
+
 }

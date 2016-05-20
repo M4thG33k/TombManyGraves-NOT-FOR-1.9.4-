@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class FriendHandler {
@@ -130,6 +131,20 @@ public class FriendHandler {
             }
         }
         return null;
+    }
+
+    public static List<String> getFriendStringListFor(MinecraftServer server, UUID playerID)
+    {
+        List<UUID> friendIDs = getFriendListFor(playerID).getFriends();
+
+        List<String> friendNames = new ArrayList<String>();
+
+        for (UUID id : friendIDs)
+        {
+            friendNames.add(server.getPlayerProfileCache().getProfileByUUID(id).getName());
+        }
+
+        return friendNames;
     }
 
     @SubscribeEvent

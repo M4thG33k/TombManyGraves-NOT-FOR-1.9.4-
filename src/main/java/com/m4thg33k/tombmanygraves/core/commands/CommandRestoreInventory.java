@@ -77,7 +77,7 @@ public class CommandRestoreInventory implements ICommand {
 
     @Override
     public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
-        return args.length == 1 ? CommandBase.getListOfStringsMatchingLastWord(args, server.getAllUsernames()) : args.length == 2 ? CommandBase.getListOfStringsMatchingLastWord(args,DeathInventoryHandler.getFilenames(args[0])) : Collections.emptyList();
+        return args.length == 1 ? CommandBase.getListOfStringsMatchingLastWord(args, server.getAllUsernames()) : (args.length == 2 ? CommandBase.getListOfStringsMatchingLastWord(args,DeathInventoryHandler.getFilenames(args[0])) : null);
     }
 
     @Override

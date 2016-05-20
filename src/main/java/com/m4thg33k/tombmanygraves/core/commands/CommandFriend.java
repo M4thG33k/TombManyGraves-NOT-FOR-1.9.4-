@@ -5,6 +5,7 @@ import com.m4thg33k.tombmanygraves.core.handlers.Friends;
 import com.m4thg33k.tombmanygraves.core.handlers.PlayerDataHandler;
 import com.m4thg33k.tombmanygraves.core.util.LogHelper;
 import com.mojang.authlib.GameProfile;
+import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
@@ -93,12 +94,12 @@ public class CommandFriend implements ICommand{
 
     @Override
     public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
-        return null;
+        return args.length == 1 ? CommandBase.getListOfStringsMatchingLastWord(args, server.getAllUsernames()) : null;
     }
 
     @Override
     public boolean isUsernameIndex(String[] args, int index) {
-        return false;
+        return index==0;
     }
 
     @Override

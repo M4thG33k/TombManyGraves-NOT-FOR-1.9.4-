@@ -2,6 +2,7 @@ package com.m4thg33k.tombmanygraves.core.commands;
 
 import com.m4thg33k.tombmanygraves.core.handlers.FriendHandler;
 import com.m4thg33k.tombmanygraves.core.handlers.PlayerDataHandler;
+import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
@@ -78,12 +79,16 @@ public class CommandRemoveFriend implements ICommand {
 
     @Override
     public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
-        return null;
+        if (sender instanceof EntityPlayer)
+        {
+            return args.length == 1 ? CommandBase.getListOfStringsMatchingLastWord(args,FriendHandler.getFriendStringListFor(server, ((EntityPlayer)sender).getUniqueID())) : null;
+        }
+        return args.length == 1 ? CommandBase.getListOfStringsMatchingLastWord(args, server.getAllUsernames()) : null;
     }
 
     @Override
     public boolean isUsernameIndex(String[] args, int index) {
-        return false;
+        return index==0;
     }
 
     @Override
