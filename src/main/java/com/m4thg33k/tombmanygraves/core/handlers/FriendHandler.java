@@ -9,13 +9,13 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import scala.actors.threadpool.Arrays;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
