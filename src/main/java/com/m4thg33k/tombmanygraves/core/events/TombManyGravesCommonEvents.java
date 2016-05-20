@@ -1,6 +1,7 @@
 package com.m4thg33k.tombmanygraves.core.events;
 
 import com.m4thg33k.tombmanygraves.blocks.ModBlocks;
+import com.m4thg33k.tombmanygraves.core.handlers.DeathInventoryHandler;
 import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
 import com.m4thg33k.tombmanygraves.core.util.LogHelper;
 import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
@@ -28,10 +29,19 @@ public class TombManyGravesCommonEvents {
 
     }
 
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public void savePlayerInventoryOnDeath(LivingDeathEvent event)
+    {
+        if (!event.getEntityLiving().worldObj.getGameRules().getBoolean("keepInventory") && event.getEntityLiving() instanceof EntityPlayer && !((EntityPlayer)event.getEntityLiving()).worldObj.isRemote)
+        {
+            DeathInventoryHandler.createDeathInventory((EntityPlayer)event.getEntityLiving());
+        }
+    }
+
     @SubscribeEvent(priority = EventPriority.NORMAL)
     public void onPlayerDeath(LivingDeathEvent event)
     {
-        if (TombManyGravesConfigs.ENABLE_GRAVES && event.getEntityLiving() instanceof EntityPlayer && !((EntityPlayer) event.getEntityLiving()).worldObj.isRemote)
+        if (!event.getEntityLiving().worldObj.getGameRules().getBoolean("keepInventory") && TombManyGravesConfigs.ENABLE_GRAVES && event.getEntityLiving() instanceof EntityPlayer && !((EntityPlayer) event.getEntityLiving()).worldObj.isRemote)
         {
             EntityPlayer player = (EntityPlayer)event.getEntityLiving();
 

@@ -76,7 +76,7 @@ public class BlockDeath extends BaseBlock {
     @Override
     public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, Entity entityIn) {
         TileDeathBlock tileDeathBlock = (TileDeathBlock)worldIn.getTileEntity(pos);
-        if (entityIn instanceof EntityPlayer && tileDeathBlock.isSamePlayer((EntityPlayer)entityIn))
+        if (entityIn instanceof EntityPlayer && tileDeathBlock.hasAccess((EntityPlayer)entityIn))
         {
             super.addCollisionBoxToList(state, worldIn, pos, entityBox, collidingBoxes, entityIn);
         }
@@ -112,7 +112,9 @@ public class BlockDeath extends BaseBlock {
 
     @Override
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state) {
-        ((TileDeathBlock)worldIn.getTileEntity(pos)).dropAllItems();
+        if (worldIn.getTileEntity(pos) != null && worldIn.getTileEntity(pos) instanceof TileDeathBlock) {
+            ((TileDeathBlock) worldIn.getTileEntity(pos)).dropAllItems();
+        }
     }
 
     @Override

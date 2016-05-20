@@ -2,6 +2,7 @@ package com.m4thg33k.tombmanygraves.client.render.tiles;
 
 import com.m4thg33k.tombmanygraves.blocks.ModBlocks;
 import com.m4thg33k.tombmanygraves.tiles.TileDeathBlock;
+import com.mojang.authlib.exceptions.AuthenticationException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;

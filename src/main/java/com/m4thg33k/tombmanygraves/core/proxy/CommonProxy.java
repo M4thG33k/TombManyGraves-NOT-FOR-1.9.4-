@@ -2,7 +2,10 @@ package com.m4thg33k.tombmanygraves.core.proxy;
 
 import com.m4thg33k.tombmanygraves.TombManyGraves;
 import com.m4thg33k.tombmanygraves.blocks.ModBlocks;
+import com.m4thg33k.tombmanygraves.core.commands.CommandFriend;
 import com.m4thg33k.tombmanygraves.core.events.TombManyGravesCommonEvents;
+import com.m4thg33k.tombmanygraves.core.handlers.FriendHandler;
+import com.m4thg33k.tombmanygraves.core.handlers.PlayerDataHandler;
 import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
 import com.m4thg33k.tombmanygraves.tiles.ModTiles;
 import net.minecraftforge.common.MinecraftForge;
@@ -14,6 +17,9 @@ public class CommonProxy {
 
     public void preinit(FMLPreInitializationEvent event)
     {
+        TombManyGraves.file = event.getModConfigurationDirectory().getParentFile();
+        FriendHandler.importFriendLists();
+
         TombManyGravesConfigs.preInit(event);
         ModBlocks.preInit();
     }
@@ -22,6 +28,8 @@ public class CommonProxy {
     {
         ModTiles.init();
         MinecraftForge.EVENT_BUS.register(new TombManyGravesCommonEvents());
+        MinecraftForge.EVENT_BUS.register(new PlayerDataHandler.EventHandler());
+        MinecraftForge.EVENT_BUS.register(new FriendHandler());
     }
 
     public void postinit(FMLPostInitializationEvent event)

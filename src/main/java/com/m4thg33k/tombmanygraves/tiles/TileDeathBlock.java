@@ -3,6 +3,8 @@ package com.m4thg33k.tombmanygraves.tiles;
 import baubles.common.container.InventoryBaubles;
 import baubles.common.lib.PlayerHandler;
 import com.m4thg33k.tombmanygraves.TombManyGraves;
+import com.m4thg33k.tombmanygraves.core.handlers.FriendHandler;
+import com.m4thg33k.tombmanygraves.core.handlers.PlayerDataHandler;
 import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
 import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
 import net.minecraft.entity.item.EntityItem;
@@ -16,7 +18,11 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.text.TextComponentString;
+
+import java.util.UUID;
 
 public class TileDeathBlock extends TileEntity {
 
@@ -25,6 +31,8 @@ public class TileDeathBlock extends TileEntity {
     private NBTTagCompound baublesNBT = new NBTTagCompound();
     private ItemStack groundMaterial = null;
     private boolean locked = false;
+
+    private UUID playerID = null;
 
     private int angle = 0;
 
@@ -38,6 +46,11 @@ public class TileDeathBlock extends TileEntity {
         playerName = name;
     }
 
+    public void setPlayerID(UUID id)
+    {
+        playerID = id;
+    }
+
     public void grabPlayer(EntityPlayer player)
     {
 
@@ -49,6 +62,7 @@ public class TileDeathBlock extends TileEntity {
         }
 //        angle = TombManyGraves.rand.nextInt(360);
         setPlayerName(player.getName());
+        setPlayerID(player.getUniqueID());
         setThisInventory(player.inventory);
 
         if (TombManyGraves.isBaublesInstalled)
@@ -73,12 +87,17 @@ public class TileDeathBlock extends TileEntity {
 
     public boolean isSamePlayer(EntityPlayer player)
     {
-        return TombManyGravesConfigs.ALLOW_GRAVE_ROBBING || player.getName().equals(playerName);
+        return TombManyGravesConfigs.ALLOW_GRAVE_ROBBING || player.getUniqueID().equals(playerID); //player.getName().equals(playerName);
     }
 
     public String getPlayerName()
     {
         return playerName;
+    }
+
+    public UUID getPlayerID()
+    {
+        return playerID;
     }
 
     @Override
@@ -92,6 +111,8 @@ public class TileDeathBlock extends TileEntity {
 
         groundMaterial = ItemStack.loadItemStackFromNBT(compound.getCompoundTag("Material"));
         locked = compound.getBoolean("IsLocked");
+
+        playerID = compound.getUniqueId("PlayerID");
     }
 
     @Override
@@ -115,11 +136,13 @@ public class TileDeathBlock extends TileEntity {
         }
         compound.setTag("Material",material);
         compound.setBoolean("IsLocked", locked);
+
+        compound.setUniqueId("PlayerID", playerID);
     }
 
     public void onCollision(EntityPlayer player)
     {
-        if (worldObj.isRemote || locked || !isSamePlayer(player))
+        if (worldObj.isRemote || locked || !(hasAccess(player)))
         {
             return;
         }
@@ -177,6 +200,7 @@ public class TileDeathBlock extends TileEntity {
         angle = pkt.getNbtCompound().getInteger("AngleOfDeath");
         groundMaterial = ItemStack.loadItemStackFromNBT(pkt.getNbtCompound().getCompoundTag("Material"));
         locked = pkt.getNbtCompound().getBoolean("IsLocked");
+        playerID = pkt.getNbtCompound().getUniqueId("PlayerID");
     }
 
     @Override
@@ -192,6 +216,7 @@ public class TileDeathBlock extends TileEntity {
         }
         compound.setTag("Material",material);
         compound.setBoolean("IsLocked",locked);
+        compound.setUniqueId("PlayerID",playerID);
         return new SPacketUpdateTileEntity(pos,0,compound);
     }
 
@@ -257,7 +282,7 @@ public class TileDeathBlock extends TileEntity {
         {
             return;
         }
-        if (isSamePlayer(player)) {
+        if (hasAccess(player)) {
             locked = !locked;
             if (TombManyGravesConfigs.ALLOW_LOCKING_MESSAGES)
             {
@@ -271,5 +296,25 @@ public class TileDeathBlock extends TileEntity {
         {
             ChatHelper.sayMessage(player.worldObj, player, "You do not have permission to modify this grave.");
         }
+    }
+
+    public boolean isFriend(EntityPlayer player)
+    {
+        return FriendHandler.isFriendOf(playerID,player.getUniqueID());
+//        EntityPlayer gravePlayer = worldObj.getPlayerEntityByName(playerName);
+//
+//        if (gravePlayer == null)
+//        {
+//            return false;
+//        }
+//
+//        PlayerDataHandler.PlayerData playerData = PlayerDataHandler.getData(gravePlayer);
+//
+//        return playerData.isFriend(player.getName());
+    }
+
+    public boolean hasAccess(EntityPlayer player)
+    {
+        return TombManyGravesConfigs.ALLOW_GRAVE_ROBBING || isSamePlayer(player) || isFriend(player);
     }
 }

@@ -20,6 +20,8 @@ public class TombManyGravesConfigs {
     public static boolean ALLOW_LOCKING_MESSAGES;
     public static boolean REQUIRE_SNEAKING;
 
+    public static boolean ALLOW_INVENTORY_SAVES;
+
     public static void preInit(FMLPreInitializationEvent event)
     {
         config = new Configuration(event.getSuggestedConfigurationFile());
@@ -48,6 +50,8 @@ public class TombManyGravesConfigs {
 
         ALLOW_LOCKING_MESSAGES = config.get("Graves","allowLockingMessages",false,"If set to true, this will send chat messages to a player when the lock/unlock a grave. (Defaults to false)").getBoolean();
         REQUIRE_SNEAKING = config.get("Graves","requireSneaking",true,"If set to true, players will be required to sneak to their grave to get their items back; otherwise any contact at all will allow retrieval. (Defaults to true)").getBoolean();
+
+        ALLOW_INVENTORY_SAVES = config.get("Inventory","allowInventorySaves",true,"If set to true, a file will be generated for each player death, allowing OPs to restore a player's inventory from the file. (Defaults to true)").getBoolean();
 
         config.save();
     }
