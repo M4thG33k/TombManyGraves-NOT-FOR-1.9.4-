@@ -166,6 +166,7 @@ public class GuiDeathItems extends GuiScreen {
         if (!TombManyGraves.isBaublesInstalled)
         {
             baubleItems = new ArrayList<String>();
+            return;
         }
         NBTTagCompound tag = deathList.getTagCompound().getCompoundTag("Baubles");
         InventoryBaubles inventoryBaubles = new InventoryBaubles(player);
