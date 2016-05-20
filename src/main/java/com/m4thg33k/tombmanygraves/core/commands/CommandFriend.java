@@ -1,9 +1,6 @@
 package com.m4thg33k.tombmanygraves.core.commands;
 
 import com.m4thg33k.tombmanygraves.core.handlers.FriendHandler;
-import com.m4thg33k.tombmanygraves.core.handlers.Friends;
-import com.m4thg33k.tombmanygraves.core.handlers.PlayerDataHandler;
-import com.m4thg33k.tombmanygraves.core.util.LogHelper;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -13,9 +10,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-import org.apache.logging.log4j.core.helpers.UUIDUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,10 +64,8 @@ public class CommandFriend implements ICommand{
                 GameProfile friendProfile = server.getPlayerProfileCache().getGameProfileForUsername(args[0]);
                 UUID friendID = friendProfile.getId();
 
-//                PlayerDataHandler.PlayerData playerData = PlayerDataHandler.getData((EntityPlayer)sender);
                 UUID playerID = ((EntityPlayer)sender).getUniqueID();
 
-                //if (playerData.addFriend(args[0]))
                 if (FriendHandler.addToFriendList(playerID,friendID))
                 {
                     sender.addChatMessage(new TextComponentString("Added " + args[0] + " to your friends."));

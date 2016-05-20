@@ -4,7 +4,6 @@ import baubles.common.container.InventoryBaubles;
 import baubles.common.lib.PlayerHandler;
 import com.m4thg33k.tombmanygraves.TombManyGraves;
 import com.m4thg33k.tombmanygraves.core.handlers.FriendHandler;
-import com.m4thg33k.tombmanygraves.core.handlers.PlayerDataHandler;
 import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
 import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
 import net.minecraft.entity.item.EntityItem;
@@ -18,9 +17,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.text.TextComponentString;
 
 import java.util.UUID;
 
@@ -301,16 +298,6 @@ public class TileDeathBlock extends TileEntity {
     public boolean isFriend(EntityPlayer player)
     {
         return FriendHandler.isFriendOf(playerID,player.getUniqueID());
-//        EntityPlayer gravePlayer = worldObj.getPlayerEntityByName(playerName);
-//
-//        if (gravePlayer == null)
-//        {
-//            return false;
-//        }
-//
-//        PlayerDataHandler.PlayerData playerData = PlayerDataHandler.getData(gravePlayer);
-//
-//        return playerData.isFriend(player.getName());
     }
 
     public boolean hasAccess(EntityPlayer player)

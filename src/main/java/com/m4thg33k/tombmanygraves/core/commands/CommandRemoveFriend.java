@@ -1,7 +1,6 @@
 package com.m4thg33k.tombmanygraves.core.commands;
 
 import com.m4thg33k.tombmanygraves.core.handlers.FriendHandler;
-import com.m4thg33k.tombmanygraves.core.handlers.PlayerDataHandler;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
