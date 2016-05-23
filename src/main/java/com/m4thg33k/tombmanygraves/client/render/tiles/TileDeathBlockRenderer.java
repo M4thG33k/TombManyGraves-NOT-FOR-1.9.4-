@@ -1,9 +1,6 @@
 package com.m4thg33k.tombmanygraves.client.render.tiles;
 
-import com.m4thg33k.tombmanygraves.blocks.ModBlocks;
 import com.m4thg33k.tombmanygraves.tiles.TileDeathBlock;
-import com.mojang.authlib.exceptions.AuthenticationException;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.BlockStateBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -12,22 +9,18 @@ import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagString;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 
 import java.util.Random;
 
 public class TileDeathBlockRenderer extends TileEntitySpecialRenderer{
 
+    RenderItem itemRenderer;
+
     public TileDeathBlockRenderer()
     {
+        itemRenderer = Minecraft.getMinecraft().getRenderItem();
     }
 
     @Override
@@ -35,37 +28,18 @@ public class TileDeathBlockRenderer extends TileEntitySpecialRenderer{
 
 
         TileDeathBlock tileDeathBlock = (TileDeathBlock)te;
+
         int deathAngle = tileDeathBlock.getAngle();
-        String playerName = tileDeathBlock.getPlayerName();
-
         boolean isLocked = tileDeathBlock.isLocked();
-        boolean renderGround = true;
-
+        boolean renderGround = tileDeathBlock.getRenderGround();
         ItemStack groundType = tileDeathBlock.getGroundMaterial();
-        if (groundType == null)
-        {
-            groundType = new ItemStack(Blocks.dirt,1);
-        }
-        else if (groundType.getItem() == Item.getItemFromBlock(ModBlocks.blockDeath))
-        {
-            renderGround = false;
-        }
 
         GlStateManager.pushMatrix();
         GlStateManager.color(1.0f,1.0f,1.0f,1.0f);
 
         GlStateManager.translate(x+0.5,y+0.5,z+0.5);
 
-        ItemStack skull = new ItemStack(Items.skull,1,3);
-        skull.setTagCompound(new NBTTagCompound());
-        skull.getTagCompound().setTag("SkullOwner",new NBTTagString(playerName));
-
-//        ItemStack dirt = new ItemStack(Blocks.dirt,1);
-
-        RenderItem itemRenderer = Minecraft.getMinecraft().getRenderItem();
-
-        EntityItem entityItem = new EntityItem(te.getWorld(),0.0,0.0,0.0,skull);
-        entityItem.hoverStart = 0.0f;
+        ItemStack skull = tileDeathBlock.getSkull();
 
         Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
 
@@ -85,7 +59,7 @@ public class TileDeathBlockRenderer extends TileEntitySpecialRenderer{
             GlStateManager.scale(0.75,0.75,0.75);
             GlStateManager.pushAttrib();
             RenderHelper.enableStandardItemLighting();
-            itemRenderer.renderItem(entityItem.getEntityItem(), ItemCameraTransforms.TransformType.FIXED);
+            itemRenderer.renderItem(skull, ItemCameraTransforms.TransformType.FIXED);
             RenderHelper.disableStandardItemLighting();
             GlStateManager.popAttrib();
             GlStateManager.popMatrix();
@@ -117,7 +91,7 @@ public class TileDeathBlockRenderer extends TileEntitySpecialRenderer{
             }
             GlStateManager.pushAttrib();
             RenderHelper.enableStandardItemLighting();
-            itemRenderer.renderItem(entityItem.getEntityItem(), ItemCameraTransforms.TransformType.FIXED);
+            itemRenderer.renderItem(skull, ItemCameraTransforms.TransformType.FIXED);
             RenderHelper.disableStandardItemLighting();
             GlStateManager.popAttrib();
             GlStateManager.popMatrix();
@@ -125,10 +99,5 @@ public class TileDeathBlockRenderer extends TileEntitySpecialRenderer{
         }
         GlStateManager.popMatrix();
 
-    }
-
-    public void renderGround(int deathAngle, ItemStack groundType)
-    {
-        BlockStateBase blockStateBase;
     }
 }

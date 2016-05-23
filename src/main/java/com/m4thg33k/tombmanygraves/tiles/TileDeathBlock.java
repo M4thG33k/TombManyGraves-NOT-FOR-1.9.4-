@@ -3,17 +3,22 @@ package com.m4thg33k.tombmanygraves.tiles;
 import baubles.common.container.InventoryBaubles;
 import baubles.common.lib.PlayerHandler;
 import com.m4thg33k.tombmanygraves.TombManyGraves;
+import com.m4thg33k.tombmanygraves.blocks.ModBlocks;
 import com.m4thg33k.tombmanygraves.core.handlers.FriendHandler;
 import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
 import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryHelper;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
@@ -33,6 +38,9 @@ public class TileDeathBlock extends TileEntity {
 
     private int angle = 0;
 
+    private boolean renderGround = false;
+    private ItemStack skull = null;
+
     public TileDeathBlock()
     {
         locked = TombManyGravesConfigs.DEFAULT_TO_LOCKED;
@@ -41,6 +49,7 @@ public class TileDeathBlock extends TileEntity {
     public void setPlayerName(String name)
     {
         playerName = name;
+        this.setSkull();
     }
 
     public void setPlayerID(UUID id)
@@ -102,11 +111,13 @@ public class TileDeathBlock extends TileEntity {
         super.readFromNBT(compound);
 
         playerName = compound.getString("PlayerName");
+        this.setSkull();
         savedPlayerInventory.readFromNBT(compound.getTagList("Inventory",10));
         baublesNBT = compound.getCompoundTag("BaublesNBT");
         angle = compound.getInteger("AngleOfDeath");
 
         groundMaterial = ItemStack.loadItemStackFromNBT(compound.getCompoundTag("Material"));
+        this.setBlockMaterial();
         locked = compound.getBoolean("IsLocked");
 
         playerID = compound.getUniqueId("PlayerID");
@@ -194,8 +205,10 @@ public class TileDeathBlock extends TileEntity {
     @Override
     public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
         playerName = pkt.getNbtCompound().getString("PlayerName");
+        this.setSkull();
         angle = pkt.getNbtCompound().getInteger("AngleOfDeath");
         groundMaterial = ItemStack.loadItemStackFromNBT(pkt.getNbtCompound().getCompoundTag("Material"));
+        this.setBlockMaterial();
         locked = pkt.getNbtCompound().getBoolean("IsLocked");
         playerID = pkt.getNbtCompound().getUniqueId("PlayerID");
     }
@@ -303,5 +316,39 @@ public class TileDeathBlock extends TileEntity {
     public boolean hasAccess(EntityPlayer player)
     {
         return TombManyGravesConfigs.ALLOW_GRAVE_ROBBING || isSamePlayer(player) || isFriend(player);
+    }
+
+    private void setBlockMaterial()
+    {
+        if (groundMaterial == null)
+        {
+            renderGround = true;
+            groundMaterial = new ItemStack(Blocks.dirt,1);
+        }
+        else if (groundMaterial.getItem() == Item.getItemFromBlock(ModBlocks.blockDeath))
+        {
+            renderGround = false;
+        }
+        else
+        {
+            renderGround = true;
+        }
+    }
+
+    public boolean getRenderGround()
+    {
+        return renderGround;
+    }
+
+    public ItemStack getSkull()
+    {
+        return skull;
+    }
+
+    private void setSkull()
+    {
+        skull = new ItemStack(Items.skull,1,3);
+        skull.setTagCompound(new NBTTagCompound());
+        skull.getTagCompound().setTag("SkullOwner",new NBTTagString(playerName));
     }
 }

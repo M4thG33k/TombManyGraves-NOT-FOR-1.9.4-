@@ -47,12 +47,6 @@ public class BlockDeath extends BaseBlock {
 
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
-        if (playerIn.getName().equals("M4thG33k"))
-        {
-            playerIn.openGui(TombManyGraves.INSTANCE, TombManyGravesGuiHandler.DEATH_ITEMS_GUI, playerIn.worldObj, (int)playerIn.posX, (int)playerIn.posY, (int)playerIn.posZ);
-            return true;
-        }
-
         if (!worldIn.isRemote)
         {
             TileDeathBlock tileDeathBlock = (TileDeathBlock)worldIn.getTileEntity(pos);
@@ -69,15 +63,12 @@ public class BlockDeath extends BaseBlock {
                 }
             }
         }
-
-//        LogHelper.info(("Attempting name getting:" + ((TileDeathBlock)worldIn.getTileEntity(pos)).getPlayerName() + ", " + ((TileDeathBlock)worldIn.getTileEntity(pos)).getGroundMaterial().getItem().getUnlocalizedName()));
         return true;
     }
 
     @Override
     public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, World worldIn, BlockPos pos) {
         return super.getCollisionBoundingBox(blockState,worldIn,pos);
-//        return new AxisAlignedBB(0.25f,0.25f,0.25f,0.75f,0.75f,0.75f);
     }
 
     @Override
